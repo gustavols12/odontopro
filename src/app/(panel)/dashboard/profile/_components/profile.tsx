@@ -35,10 +35,29 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Prisma } from '@/generated/prisma';
 
-export function ProfileContent() {
-  const form = useProfileForm();
-  const [selectedHours, setSelectedHours] = useState<string[]>([]);
+type UserWithSubscription = Prisma.UserGetPayload<{
+  include: {
+    subscription: true;
+  };
+}>;
+
+interface ProfileContentProps {
+  user: UserWithSubscription;
+}
+
+export function ProfileContent({ user }: ProfileContentProps) {
+  const form = useProfileForm({
+    name: user.name,
+    address: user.address,
+    phone: user.phone,
+    status: user.status,
+    timeZone: user.timeZone,
+  });
+  const [selectedHours, setSelectedHours] = useState<string[]>(
+    user.times ?? [],
+  );
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
   function generateTimeSlots(): string[] {
@@ -90,7 +109,7 @@ export function ProfileContent() {
               <div className="flex justify-center">
                 <div className="bg-gray-200 relative rounded-full h-40 w-40 overflow-hidden">
                   <Image
-                    src={imageTeste}
+                    src={user.image ? user.image : imageTeste}
                     alt="img da clinica"
                     fill
                     className="object-cover"
