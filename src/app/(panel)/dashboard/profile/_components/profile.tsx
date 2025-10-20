@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { ProfileFormData, useProfileForm } from './profile-form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import imageTeste from '../../../../../../public/foto1.png';
+import { ProfileFormData, useProfileForm } from "./profile-form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import imageTeste from "../../../../../../public/foto1.png";
 import {
   Form,
   FormControl,
@@ -11,17 +11,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import Image from 'next/image';
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import Image from "next/image";
 
 import {
   Dialog,
@@ -30,12 +30,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
-import { useState } from 'react';
-import { cn } from '@/lib/utils';
-import { Prisma } from '@/generated/prisma';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Prisma } from "@/generated/prisma";
+import { updateProfile } from "../_actions/update-profile";
 
 type UserWithSubscription = Prisma.UserGetPayload<{
   include: {
@@ -56,7 +57,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
     timeZone: user.timeZone,
   });
   const [selectedHours, setSelectedHours] = useState<string[]>(
-    user.times ?? [],
+    user.times ?? []
   );
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
@@ -64,9 +65,9 @@ export function ProfileContent({ user }: ProfileContentProps) {
     const hours: string[] = [];
 
     for (let i = 8; i <= 24; i++) {
-      for (let j = 0; j <= 2; j++) {
-        const hour = i.toString().padStart(2, '0');
-        const minute = (j * 30).toString().padStart(2, '0');
+      for (let j = 0; j < 2; j++) {
+        const hour = i.toString().padStart(2, "0");
+        const minute = (j * 30).toString().padStart(2, "0");
         hours.push(`${hour}:${minute}`);
       }
     }
@@ -79,23 +80,32 @@ export function ProfileContent({ user }: ProfileContentProps) {
     setSelectedHours((prev) =>
       prev.includes(hour)
         ? prev.filter((h) => h !== hour)
-        : [...prev, hour].sort(),
+        : [...prev, hour].sort()
     );
   }
 
-  const timeZone = Intl.supportedValuesOf('timeZone').filter(
+  const timeZone = Intl.supportedValuesOf("timeZone").filter(
     (zone) =>
-      zone.startsWith('America/Sao_Paulo') ||
-      zone.startsWith('America/Fortaleza') ||
-      zone.startsWith('America/Recife') ||
-      zone.startsWith('America/Bahia') ||
-      zone.startsWith('America/Belem') ||
-      zone.startsWith('America/Manaus') ||
-      zone.startsWith('America/Cuiaba') ||
-      zone.startsWith('America/Boa_Vista'),
+      zone.startsWith("America/Sao_Paulo") ||
+      zone.startsWith("America/Fortaleza") ||
+      zone.startsWith("America/Recife") ||
+      zone.startsWith("America/Bahia") ||
+      zone.startsWith("America/Belem") ||
+      zone.startsWith("America/Manaus") ||
+      zone.startsWith("America/Cuiaba") ||
+      zone.startsWith("America/Boa_Vista")
   );
 
-  async function onSubmit(values: ProfileFormData) {}
+  async function onSubmit(values: ProfileFormData) {
+    const response = await updateProfile({
+      name: values.name,
+      address: values.address,
+      phone: values.phone,
+      status: values.status === "active" ? true : false,
+      timeZone: values.timeZone,
+      times: selectedHours || [],
+    });
+  }
   return (
     <div className="mx-auto">
       <Form {...form}>
@@ -178,7 +188,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
                       <FormControl>
                         <Select
                           onValueChange={field.onChange}
-                          defaultValue={field.value ? 'active' : 'inactive'}
+                          defaultValue={field.value ? "active" : "inactive"}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione o status da clínica" />
@@ -205,9 +215,9 @@ export function ProfileContent({ user }: ProfileContentProps) {
                   <DialogTrigger asChild>
                     <Button
                       className="w-full justify-between"
-                      variant={'outline'}
+                      variant={"outline"}
                     >
-                      Clique aqui para selecionar horários{' '}
+                      Clique aqui para selecionar horários{" "}
                       <ArrowRight className="w-5 h-5" />
                     </Button>
                   </DialogTrigger>
@@ -230,11 +240,11 @@ export function ProfileContent({ user }: ProfileContentProps) {
                         {hours.map((hour) => (
                           <Button
                             key={hour}
-                            variant={'outline'}
+                            variant={"outline"}
                             className={cn(
-                              'h-10',
+                              "h-10",
                               selectedHours.includes(hour) &&
-                                'border-emerald-500 text-primary border-2',
+                                "border-emerald-500 text-primary border-2"
                             )}
                             onClick={() => toggleHour(hour)}
                           >
