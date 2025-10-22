@@ -1,21 +1,23 @@
+"use server";
+
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "o campo nome é obrigatório" }),
-  price: z.number().min(1, { message: "o campo preço é obrigatório" }),
+  name: z.string().min(1, { message: "O nome do serviço é obrigatório" }),
+  price: z.number().min(1, { message: "O preço do serviço é obrigatório" }),
   duration: z.number(),
 });
 
-type fromSchema = z.infer<typeof formSchema>;
+type FromSchema = z.infer<typeof formSchema>;
 
-export async function createNewService(formData: fromSchema) {
+export async function createNewService(formData: FromSchema) {
   const session = await auth();
 
-  if (!session?.user.id) {
+  if (!session?.user?.id) {
     return {
-      error: "falha ao cadastrar serviço",
+      error: "Falha ao cadastra serviço",
     };
   }
 
@@ -33,15 +35,17 @@ export async function createNewService(formData: fromSchema) {
         name: formData.name,
         price: formData.price,
         duration: formData.duration,
-        userId: session.user.id,
+        userId: session?.user?.id,
       },
     });
+
     return {
       data: newService,
     };
   } catch (err) {
+    console.log(err);
     return {
-      error: "erro ao cadastrar serviço",
+      error: "Falha ao cadastra serviço",
     };
   }
 }
