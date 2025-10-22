@@ -24,6 +24,7 @@ import { convertRealToCents } from "@/utilis/convertCurrenct";
 import { createNewService } from "../_actions/create-service";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface DialogServiceProps {
   closeModal: () => void;
@@ -31,6 +32,7 @@ interface DialogServiceProps {
 
 export function DialogService({ closeModal }: DialogServiceProps) {
   const form = useDialogServiceForm();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
 
@@ -57,6 +59,7 @@ export function DialogService({ closeModal }: DialogServiceProps) {
 
     toast.success("Serviço cadastrado com sucesso!");
     handleCloseModal();
+    router.refresh();
   }
 
   function changeCurrency(event: React.ChangeEvent<HTMLInputElement>) {
