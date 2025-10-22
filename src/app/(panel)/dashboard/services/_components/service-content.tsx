@@ -8,7 +8,7 @@ export async function ServiceContent({ userId }: ServiceContentProps) {
   const services = await getAllServices({ userId });
   return (
     <div>
-      <ServiceList />
+      <ServiceList services={services.data || []} />
     </div>
   );
 }

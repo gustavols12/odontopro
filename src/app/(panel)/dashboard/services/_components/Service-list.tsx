@@ -19,10 +19,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Pencil, Plus, X } from "lucide-react";
 import { DialogService } from "./dialog-sevice";
+import { Service } from "@/generated/prisma";
 
-export function ServiceList() {
+interface ServiceListProps {
+  services: Service[];
+}
+
+export function ServiceList({ services }: ServiceListProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -46,6 +51,36 @@ export function ServiceList() {
               />
             </DialogContent>
           </CardHeader>
+
+          <CardContent>
+            <section className="space-y-4 mt-5">
+              {services.map((service) => (
+                <article
+                  key={service.id}
+                  className="flex items-center justify-between"
+                >
+                  <div className=" flex items-center space-x-2">
+                    <span className="font-medium">{service.name}</span>
+                    <span className="text-gray-500">-</span>
+                    <span className="text-gray-500">
+                      {(service.price / 100).toLocaleString("pt-br", {
+                        currency: "BRL",
+                        style: "currency",
+                      })}
+                    </span>
+                  </div>
+                  <div>
+                    <Button variant="ghost" onClick={() => {}}>
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" onClick={() => {}}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </article>
+              ))}
+            </section>
+          </CardContent>
         </Card>
       </section>
     </Dialog>
