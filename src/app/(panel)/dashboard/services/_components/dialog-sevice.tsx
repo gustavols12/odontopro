@@ -25,13 +25,25 @@ import { createNewService } from "../_actions/create-service";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { updateService } from "../_actions/update-service";
 
 interface DialogServiceProps {
   closeModal: () => void;
+  serviceId?: string;
+  initialValues?: {
+    name: string;
+    price: string;
+    hours: string;
+    minutes: string;
+  };
 }
 
-export function DialogService({ closeModal }: DialogServiceProps) {
-  const form = useDialogServiceForm();
+export function DialogService({
+  closeModal,
+  serviceId,
+  initialValues,
+}: DialogServiceProps) {
+  const form = useDialogServiceForm({ initialValues });
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
@@ -43,6 +55,17 @@ export function DialogService({ closeModal }: DialogServiceProps) {
     const minutes = parseInt(values.minutes) || 0;
 
     const duration = hours * 60 + minutes;
+
+    if (serviceId) {
+      await editServiceById({
+        serviceId,
+        name: values.name,
+        priceInCents,
+        duration,
+      });
+      setLoading(false);
+      return;
+    }
 
     const response = await createNewService({
       name: values.name,
@@ -76,6 +99,35 @@ export function DialogService({ closeModal }: DialogServiceProps) {
     event.target.value = value;
 
     form.setValue("price", value);
+  }
+
+  async function editServiceById({
+    serviceId,
+    name,
+    priceInCents,
+    duration,
+  }: {
+    serviceId: string;
+    name: string;
+    priceInCents: number;
+    duration: number;
+  }) {
+    const response = await updateService({
+      serviceId,
+      price: priceInCents,
+      name,
+      duration,
+    });
+
+    setLoading(false);
+
+    if (response.error) {
+      toast.error(response.error);
+      return;
+    }
+
+    toast.success(response.data);
+    handleCloseModal();
   }
 
   function handleCloseModal() {
@@ -165,7 +217,9 @@ export function DialogService({ closeModal }: DialogServiceProps) {
             className="w-full font-semibold text-white"
             disabled={loading}
           >
-            {loading ? "Cadastrando" : "Adicionar serviço"}
+            {loading
+              ? "Carregando..."
+              : `${serviceId ? "Atualizar serviço" : "Cadastrar serviço"}`}
           </Button>
         </form>
       </Form>
