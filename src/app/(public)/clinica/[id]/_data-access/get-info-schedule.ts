@@ -23,9 +23,5 @@ export async function getInfoSchedule({ userId }: { userId: string }) {
     if (!user) return null;
 
     return user;
-  } catch (err) {
-    return {
-      error: "falha ao buscar dados da clinica",
-    };
-  }
+  } catch (err) {}
 }

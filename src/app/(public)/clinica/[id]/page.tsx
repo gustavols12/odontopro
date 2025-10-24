@@ -9,12 +9,12 @@ export default async function SchedulePage({
 }) {
   const userId = (await params).id;
 
-  const user = await getInfoSchedule({ userId });
+  const user = await getInfoSchedule({ userId: userId });
 
   if (!user) redirect("/");
   return (
     <div>
-      <ScheduleContent />
+      <ScheduleContent clinic={user} />
     </div>
   );
 }
