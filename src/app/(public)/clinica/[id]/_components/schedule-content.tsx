@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useState } from "react";
 
 type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
   include: {
@@ -36,9 +37,20 @@ type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
 interface ScheduleContentProps {
   clinic: UserWithServiceAndSubscription;
 }
+interface TimeSlot {
+  time: string;
+  available: boolean;
+}
 
 export function ScheduleContent({ clinic }: ScheduleContentProps) {
   const form = useAppointmentForm();
+  const { watch } = form;
+  const [selectedTime, setSelectedTime] = useState("");
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+
+  const [blockedTimes, setBlockedTimes] = useState<string[]>([]);
+  async function handleRegisterAppointment(formData: AppoimentFormData) {}
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -69,7 +81,10 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
 
       <section className="max-w-2xl mx-auto w-full mt-5">
         <Form {...form}>
-          <form className="mx-2 space-y-6 bg-white p-6 border rounded-md shadow-sm">
+          <form
+            className="mx-2 space-y-6 bg-white p-6 border rounded-md shadow-sm"
+            onSubmit={form.handleSubmit(handleRegisterAppointment)}
+          >
             <FormField
               control={form.control}
               name="name"
@@ -177,6 +192,26 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                 </FormItem>
               )}
             />
+
+            {clinic.status ? (
+              <Button
+                className="w-full bg-emerald-500 hover:bg-emerald-400"
+                type="submit"
+                disabled={
+                  !watch("name") ||
+                  !watch("email") ||
+                  !watch("phone") ||
+                  !watch("date") ||
+                  !watch("serviceId")
+                }
+              >
+                Realizar agendamento
+              </Button>
+            ) : (
+              <p className="bg-red-500 text-center text-white rounded px-4 py-2">
+                A clinica está fechada nesse momento.
+              </p>
+            )}
           </form>
         </Form>
       </section>
