@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCallback, useEffect, useState } from "react";
+import { ScheduleTimeList } from "./schedule-time-list";
 
 type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
   include: {
@@ -37,7 +38,7 @@ type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
 interface ScheduleContentProps {
   clinic: UserWithServiceAndSubscription;
 }
-interface TimeSlot {
+export interface TimeSlot {
   time: string;
   available: boolean;
 }
@@ -52,6 +53,7 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
   const [blockedTimes, setBlockedTimes] = useState<string[]>([]);
 
   const selectedDate = watch("date");
+  const selectedServiceId = watch("serviceId");
 
   async function handleRegisterAppointment(formData: AppoimentFormData) {}
 
@@ -231,6 +233,38 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
                 </FormItem>
               )}
             />
+            {selectedServiceId && (
+              <div className="space-y-2">
+                <Label className="font-semibold">Horários disponíveis</Label>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  {loadingSlots ? (
+                    <p>Carregando horários...</p>
+                  ) : availableTimeSlots.length === 0 ? (
+                    <p>Nenhum horário disponivel</p>
+                  ) : (
+                    <ScheduleTimeList
+                      onSelectTime={(time) => setSelectedTime(time)}
+                      clinicTimes={clinic.times}
+                      blockedTimes={blockedTimes}
+                      availableTimeSlot={availableTimeSlots}
+                      selectedDate={selectedDate}
+                      selectedTime={selectedTime}
+                      requireSlots={
+                        clinic.services.find(
+                          (service) => service.id === selectedServiceId
+                        )
+                          ? Math.ceil(
+                              clinic.services.find(
+                                (service) => service.id === selectedServiceId
+                              )!.duration / 30
+                            )
+                          : 1
+                      }
+                    />
+                  )}
+                </div>
+              </div>
+            )}
 
             {clinic.status ? (
               <Button
