@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/select";
 import { useCallback, useEffect, useState } from "react";
 import { ScheduleTimeList } from "./schedule-time-list";
+import { createNewAppointment } from "../_actions/create-appointmets";
+import { toast } from "sonner";
 
 type UserWithServiceAndSubscription = Prisma.UserGetPayload<{
   include: {
@@ -55,7 +57,30 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
   const selectedDate = watch("date");
   const selectedServiceId = watch("serviceId");
 
-  async function handleRegisterAppointment(formData: AppoimentFormData) {}
+  async function handleRegisterAppointment(formData: AppoimentFormData) {
+    if (!selectedTime) {
+      return;
+    }
+
+    const response = await createNewAppointment({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      date: formData.date,
+      time: selectedTime,
+      serviceId: formData.serviceId,
+      clinicId: clinic.id,
+    });
+
+    if (response.error) {
+      toast.error(response.error);
+      return;
+    }
+
+    toast.success("consulta agendada com sucesso!");
+    form.reset();
+    setSelectedTime("");
+  }
 
   const fetchBlockedTimes = useCallback(
     async (date: Date): Promise<string[]> => {
