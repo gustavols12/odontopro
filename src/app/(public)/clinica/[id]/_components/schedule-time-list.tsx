@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { TimeSlot } from "./schedule-content";
 import { cn } from "@/lib/utils";
+import { isSlotInThePast, isToday } from "./schedule-utils";
 
 interface ScheduleTimeListProps {
   selectedDate: Date;
@@ -22,9 +23,12 @@ export function ScheduleTimeList({
   selectedTime,
   onSelectTime,
 }: ScheduleTimeListProps) {
+  const dateIsToday = isToday(selectedDate);
   return (
     <div className="grid grid-cols-4 md:grid-cols-5 gap-2">
       {availableTimeSlot.map((slot) => {
+        const slotIsPast = dateIsToday && isSlotInThePast(slot.time);
+
         return (
           <Button
             onClick={() => onSelectTime(slot.time)}
@@ -35,6 +39,7 @@ export function ScheduleTimeList({
             )}
             variant={"outline"}
             type="button"
+            disabled={slotIsPast}
           >
             {slot.time}
           </Button>

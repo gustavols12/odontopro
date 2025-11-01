@@ -114,6 +114,14 @@ export function ScheduleContent({ clinic }: ScheduleContentProps) {
           available: !blocked.includes(time),
         }));
         setAvailableTimeSlots(finalSlots);
+
+        const stillAvailable = finalSlots.find(
+          (slot) => slot.time === selectedTime && slot.available
+        );
+
+        if (!stillAvailable) {
+          setSelectedTime("");
+        }
       });
     }
   }, [selectedDate, clinic.times, fetchBlockedTimes, selectedTime]);
