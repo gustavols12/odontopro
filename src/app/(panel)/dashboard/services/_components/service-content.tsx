@@ -1,14 +1,12 @@
-import { getAllServices } from "../_data-access/get-all-service";
-import { ServiceList } from "./Service-list";
+import { getAllServices } from "../_data-access/get-all-services";
+import { ServicesList } from "./Services-list";
 
-interface ServiceContentProps {
+interface ServicesContentProps {
   userId: string;
 }
-export async function ServiceContent({ userId }: ServiceContentProps) {
-  const services = await getAllServices({ userId });
-  return (
-    <div>
-      <ServiceList services={services.data || []} />
-    </div>
-  );
+
+export async function ServicesContent({ userId }: ServicesContentProps) {
+  const services = await getAllServices({ userId: userId });
+
+  return <ServicesList services={services.data || []} />;
 }

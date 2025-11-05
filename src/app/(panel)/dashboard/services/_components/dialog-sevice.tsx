@@ -1,18 +1,17 @@
 "use client";
-
+import { useState } from "react";
 import {
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  DialogServiceFormData,
   useDialogServiceForm,
+  DialogServiceFormData,
 } from "./dialog-service-form";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,12 +19,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { convertRealToCents } from "@/utilis/convertCurrenct";
 import { createNewService } from "../_actions/create-service";
-import { toast } from "sonner";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { updateService } from "../_actions/update-service";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { convertRealToCents } from "@/utilis/convertCurrency";
 
 interface DialogServiceProps {
   closeModal: () => void;
@@ -40,13 +38,12 @@ interface DialogServiceProps {
 
 export function DialogService({
   closeModal,
-  serviceId,
   initialValues,
+  serviceId,
 }: DialogServiceProps) {
-  const form = useDialogServiceForm({ initialValues });
-  const router = useRouter();
-
+  const form = useDialogServiceForm({ initialValues: initialValues });
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   async function onSubmit(values: DialogServiceFormData) {
     setLoading(true);
@@ -54,16 +51,17 @@ export function DialogService({
     const hours = parseInt(values.hours) || 0;
     const minutes = parseInt(values.minutes) || 0;
 
+    // Converter as horas e minutos para duração total em minutos;
     const duration = hours * 60 + minutes;
 
     if (serviceId) {
       await editServiceById({
-        serviceId,
+        serviceId: serviceId,
         name: values.name,
-        priceInCents,
-        duration,
+        priceInCents: priceInCents,
+        duration: duration,
       });
-      setLoading(false);
+
       return;
     }
 
@@ -73,32 +71,16 @@ export function DialogService({
       duration: duration,
     });
 
+    setLoading(false);
+
     if (response.error) {
       toast.error(response.error);
       return;
     }
 
-    setLoading(false);
-
-    toast.success("Serviço cadastrado com sucesso!");
+    toast.success("Serviço cadastrado com sucesso");
     handleCloseModal();
     router.refresh();
-  }
-
-  function changeCurrency(event: React.ChangeEvent<HTMLInputElement>) {
-    let { value } = event.target;
-
-    value = value.replace(/\D/g, "");
-
-    if (value) {
-      value = (parseInt(value, 10) / 100).toFixed(2);
-      value = value.replace(".", ",");
-      value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
-
-    event.target.value = value;
-
-    form.setValue("price", value);
   }
 
   async function editServiceById({
@@ -113,20 +95,20 @@ export function DialogService({
     duration: number;
   }) {
     const response = await updateService({
-      serviceId,
+      serviceId: serviceId,
+      name: name,
       price: priceInCents,
-      name,
-      duration,
+      duration: duration,
     });
 
     setLoading(false);
 
     if (response.error) {
-      toast.error(response.error);
+      toast(response.error);
       return;
     }
 
-    toast.success(response.data);
+    toast(response.data);
     handleCloseModal();
   }
 
@@ -134,10 +116,25 @@ export function DialogService({
     form.reset();
     closeModal();
   }
+
+  function changeCurrency(event: React.ChangeEvent<HTMLInputElement>) {
+    let { value } = event.target;
+    value = value.replace(/\D/g, "");
+
+    if (value) {
+      value = (parseInt(value, 10) / 100).toFixed(2);
+      value = value.replace(".", ",");
+      value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    event.target.value = value;
+    form.setValue("price", value);
+  }
+
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Novo serviço</DialogTitle>
+        <DialogTitle>Novo Serviço</DialogTitle>
         <DialogDescription>Adicione um novo serviço</DialogDescription>
       </DialogHeader>
 
@@ -162,6 +159,7 @@ export function DialogService({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="price"
@@ -182,8 +180,8 @@ export function DialogService({
               )}
             />
           </div>
-          <p className="font-semibold">Tempo de duração do serviço</p>
 
+          <p className="font-semibold">Tempo de duração do serviço:</p>
           <div className="grid grid-cols-2 gap-3">
             <FormField
               control={form.control}
@@ -198,6 +196,7 @@ export function DialogService({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="minutes"
@@ -212,6 +211,7 @@ export function DialogService({
               )}
             />
           </div>
+
           <Button
             type="submit"
             className="w-full font-semibold text-white"

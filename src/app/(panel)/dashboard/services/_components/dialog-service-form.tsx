@@ -1,18 +1,12 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 
-interface UseProfileFormProps {
-  name: string | null;
-  address: string | null;
-  phone: string | null;
-  status: boolean;
-  timeZone: string | null;
-}
-
 const formSchema = z.object({
-  name: z.string().min(1, { message: "o nome é obrigatório" }),
-  price: z.string().min(1, { message: "o preço é obrigatório" }),
+  name: z.string().min(1, { message: "O nome do serviço é obrigatório" }),
+  price: z.string().min(1, { message: "O preço do serviço é obrigatório" }),
   hours: z.string(),
   minutes: z.string(),
 });
