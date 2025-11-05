@@ -4,7 +4,9 @@ import prisma from "@/lib/prisma";
 
 export async function getInfoSchedule({ userId }: { userId: string }) {
   try {
-    if (!userId) return null;
+    if (!userId) {
+      return null;
+    }
 
     const user = await prisma.user.findFirst({
       where: {
@@ -20,7 +22,9 @@ export async function getInfoSchedule({ userId }: { userId: string }) {
       },
     });
 
-    if (!user) return null;
+    if (!user) {
+      return null;
+    }
 
     return user;
   } catch (err) {}

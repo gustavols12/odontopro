@@ -4,13 +4,13 @@ import prisma from "@/lib/prisma";
 import { z } from "zod";
 
 const formSchema = z.object({
-  name: z.string().min(1, "o nome é obrigatório"),
-  email: z.string().min(1, "o email é obrigatório"),
-  phone: z.string().min(1, "o telefone é obrigatório"),
+  name: z.string().min(1, "O nome é obrigatório"),
+  email: z.string().email("O email é obrigatório"),
+  phone: z.string().min(1, "O telefone é obrigatório"),
   date: z.date(),
-  time: z.string().min(1, "o horário é obrigatório"),
-  clinicId: z.string().min(1, "o horário é obrigatório"),
-  serviceId: z.string().min(1, "o serviço é obrigatório"),
+  serviceId: z.string().min(1, "O serviço é obrigatório"),
+  time: z.string().min(1, "O horário é obrigatório"),
+  clinicId: z.string().min(1, "O horário é obrigatório"),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
@@ -49,8 +49,9 @@ export async function createNewAppointment(formData: FormSchema) {
       data: newAppointment,
     };
   } catch (err) {
+    console.log(err);
     return {
-      error: "Erro ao realizar agendamento",
+      error: "Erro ao cadastrar agendamento",
     };
   }
 }

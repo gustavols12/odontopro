@@ -8,13 +8,11 @@ export default async function SchedulePage({
   params: Promise<{ id: string }>;
 }) {
   const userId = (await params).id;
-
   const user = await getInfoSchedule({ userId: userId });
 
-  if (!user) redirect("/");
-  return (
-    <div>
-      <ScheduleContent clinic={user} />
-    </div>
-  );
+  if (!user) {
+    redirect("/");
+  }
+
+  return <ScheduleContent clinic={user} />;
 }

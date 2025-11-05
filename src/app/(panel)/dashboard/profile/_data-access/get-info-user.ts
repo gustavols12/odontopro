@@ -8,7 +8,9 @@ interface GetUserDataProps {
 
 export async function getUserData({ userId }: GetUserDataProps) {
   try {
-    if (!userId) return null;
+    if (!userId) {
+      return null;
+    }
 
     const user = await prisma.user.findFirst({
       where: {
@@ -19,7 +21,9 @@ export async function getUserData({ userId }: GetUserDataProps) {
       },
     });
 
-    if (!user) return null;
+    if (!user) {
+      return null;
+    }
 
     return user;
   } catch (err) {

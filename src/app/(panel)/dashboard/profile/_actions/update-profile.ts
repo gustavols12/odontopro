@@ -1,12 +1,12 @@
 "use server";
+
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { error } from "console";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "o nome é obrigatório" }),
+  name: z.string().min(1, { message: "O nome é obrigatório" }),
   address: z.string().optional(),
   phone: z.string().optional(),
   status: z.boolean(),
@@ -17,25 +17,26 @@ const formSchema = z.object({
 type FormSchema = z.infer<typeof formSchema>;
 
 export async function updateProfile(formData: FormSchema) {
-  const schema = formSchema.safeParse(formData);
   const session = await auth();
 
-  if (!session?.user.id) {
+  if (!session?.user?.id) {
     return {
-      error: "usuário não encontrado",
+      error: "Usuário não encontrado",
     };
   }
 
+  const schema = formSchema.safeParse(formData);
+
   if (!schema.success) {
     return {
-      error: "preencha todos os campos",
+      error: "Preencha todos os campos",
     };
   }
 
   try {
     await prisma.user.update({
       where: {
-        id: session.user.id,
+        id: session?.user?.id,
       },
       data: {
         name: formData.name,
@@ -52,9 +53,10 @@ export async function updateProfile(formData: FormSchema) {
     return {
       data: "Clinica atualizada com sucesso!",
     };
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     return {
-      error: "falha ao atualizar usuário",
+      error: "Falha ao atualizar clincia",
     };
   }
 }
