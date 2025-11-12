@@ -2,10 +2,14 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import { Prisma } from "@/generated/prisma";
+import { Button } from "@/components/ui/button";
+import { Eye, X } from "lucide-react";
+import { cancelAppointment } from "../../_actions/cancel-appointment";
+import { toast } from "sonner";
 
 interface AppointmentsListProps {
   times: string[];
@@ -19,8 +23,9 @@ type AppointmentWithService = Prisma.AppointmentGetPayload<{
 export function AppointmentsList({ times }: AppointmentsListProps) {
   const searchParams = useSearchParams();
   const date = searchParams.get("date");
+  const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["get-appointments", date],
     queryFn: async () => {
       let activeDate = date;
@@ -65,6 +70,19 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
     }
   }
 
+  async function handleCancelAppointment(id: string) {
+    const response = await cancelAppointment({ appointmentId: id });
+
+    if (response.error) {
+      toast.error(response.error);
+      return;
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["get-appointments"] });
+    await refetch();
+    toast.success(response.data);
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -96,6 +114,21 @@ export function AppointmentsList({ times }: AppointmentsListProps) {
                       </div>
                       <div className="text-sm text-gray-500">
                         {occupant.name}
+                      </div>
+                    </div>
+
+                    <div className="ml-auto">
+                      <div className="flex">
+                        <Button variant={"ghost"} size={"icon"}>
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant={"ghost"}
+                          size={"icon"}
+                          onClick={() => handleCancelAppointment(occupant.id)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
