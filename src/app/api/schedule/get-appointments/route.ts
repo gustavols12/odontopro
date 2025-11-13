@@ -1,5 +1,3 @@
-// Backend meusite.com/api/schedule/get-appointments
-
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -21,10 +19,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Converte a data recebida em um objeto Date
     const [year, month, day] = dateParam.split("-").map(Number);
-    const startDate = new Date(year, month - 1, day, 0, 0, 0);
-    const endDate = new Date(year, month - 1, day, 23, 59, 59, 999);
+    const startDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+    const endDate = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
 
     const user = await prisma.user.findFirst({
       where: {
@@ -56,11 +53,9 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Montar com todos os (slots) ocupados
     const blockedSlots = new Set<string>();
 
     for (const apt of appointments) {
-      // Ex: apt.time = "10:00", apt.service.duration = 60 (1h)
       const requiredSlots = Math.ceil(apt.service.duration / 30);
       const startIndex = user.times.indexOf(apt.time);
 
