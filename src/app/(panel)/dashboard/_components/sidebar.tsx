@@ -235,7 +235,7 @@ function SidebarLink({
   pathname,
 }: SidebarLinkProps) {
   return (
-    <Link href={href}>
+    <Link href={href} prefetch>
       <div
         className={clsx(
           "flex items-center gap-2  px-3 py-2 rounded-md  transition-colors",
