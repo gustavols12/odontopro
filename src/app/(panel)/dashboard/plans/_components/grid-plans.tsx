@@ -37,7 +37,7 @@ export function GridPlans() {
               <p className="text-black text-2xl font-bold">{plan.price}</p>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="mb-2">
             <Button
               className={
                 index === 1
