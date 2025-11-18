@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { subscriptionPlans } from "@/utilis/plans/index";
+import { SubscriptionButton } from "./subscription-button";
 
 export function GridPlans() {
   return (
@@ -38,15 +39,9 @@ export function GridPlans() {
             </div>
           </CardContent>
           <CardFooter className="mb-2">
-            <Button
-              className={
-                index === 1
-                  ? "w-full bg-emerald-500 hover:bg-emerald-400"
-                  : "bg-black w-full"
-              }
-            >
-              Ativar assinatura
-            </Button>
+            <SubscriptionButton
+              type={plan.id === "BASIC" ? "BASIC" : "PROFESSIONAL"}
+            />
           </CardFooter>
         </Card>
       ))}
