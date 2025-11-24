@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { stripe } from "@/utilis/stripe";
+import { manageSubscription } from "@/utilis/manage-subscription";
+import { Plan } from "@/generated/prisma";
+import { revalidatePath } from "next/cache";
 
 export const POST = async (request: Request) => {
   const signature = request.headers.get("stripe-signature");
@@ -19,16 +22,38 @@ export const POST = async (request: Request) => {
   switch (event.type) {
     case "customer.subscription.deleted":
       const payment = event.data.object as Stripe.Subscription;
-      console.log("assinatura cancelada " + payment);
+      await manageSubscription(
+        payment.id,
+        payment.customer.toString(),
+        false,
+        true
+      );
       break;
     case "customer.subscription.updated":
       const paymentIntent = event.data.object as Stripe.Subscription;
-      console.log("Atualizar assinatura  " + paymentIntent);
+      await manageSubscription(
+        paymentIntent.id,
+        paymentIntent.customer.toString(),
+        false
+      );
 
       break;
     case "checkout.session.completed":
       const checkoutSession = event.data.object as Stripe.Checkout.Session;
-      console.log("Assinatura criada " + checkoutSession);
+
+      const type = checkoutSession?.metadata?.type
+        ? checkoutSession.metadata.type
+        : "BASIC";
+
+      if (checkoutSession.subscription && checkoutSession.customer) {
+        await manageSubscription(
+          checkoutSession.subscription.toString(),
+          checkoutSession.customer.toString(),
+          true,
+          false,
+          type as Plan
+        );
+      }
 
       break;
 
@@ -36,5 +61,6 @@ export const POST = async (request: Request) => {
       console.log("Evento não tratado " + event.type);
   }
 
+  revalidatePath("/dashboard/plans");
   return NextResponse.json({ received: true });
 };
