@@ -4,9 +4,5 @@ import { AppointmentsList } from "./appointments-List";
 export async function Appointments({ userId }: { userId: string }) {
   const { times } = await getTimesClinic({ userId: userId });
 
-  return (
-    <div>
-      <AppointmentsList times={times} />
-    </div>
-  );
+  return <AppointmentsList times={times} />;
 }

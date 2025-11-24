@@ -3,33 +3,45 @@ import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 
 export const GET = auth(async function GET(request) {
-  if (!request.auth)
+  if (!request.auth) {
     return NextResponse.json(
-      { error: "acesso não autorizado" },
+      { error: "Acesso nao autorizado!" },
       { status: 401 }
     );
+  }
 
   const searchParams = request.nextUrl.searchParams;
+  const dateString = searchParams.get("date") as string; // Formato esperado: YYYY-MM-DD
+  const clinicId = request.auth?.user?.id;
 
-  const dateString = searchParams.get("date") as string;
+  console.log("Clinic ID:", clinicId);
 
-  const clinicId = request.auth.user.id;
   if (!dateString) {
-    return NextResponse.json({ error: "data não informada" }, { status: 400 });
+    return NextResponse.json({ error: "Data não informada!" }, { status: 400 });
   }
 
   if (!clinicId) {
     return NextResponse.json(
-      { error: "Usuário nao encontrado" },
+      { error: "Usuário não encontrado" },
       { status: 400 }
     );
   }
 
   try {
-    const [year, month, day] = dateString.split("-").map(Number);
+    console.log("Processando datas...");
 
-    const startDate = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
-    const endDate = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 99));
+    // --- CORREÇÃO AQUI ---
+    // Em vez de criar a data baseada no fuso local (split/new Date),
+    // montamos a string ISO UTC manualmente.
+
+    // Data Inicial: 2025-11-24T00:00:00.000Z
+    const startDate = new Date(`${dateString}T00:00:00.000Z`);
+
+    // Data Final: 2025-11-24T23:59:59.999Z
+    const endDate = new Date(`${dateString}T23:59:59.999Z`);
+
+    console.log("Start (UTC):", startDate.toISOString());
+    console.log("End (UTC):", endDate.toISOString());
 
     const appointments = await prisma.appointment.findMany({
       where: {
@@ -42,13 +54,20 @@ export const GET = auth(async function GET(request) {
       include: {
         service: true,
       },
+      // Opcional: Ordenar por horário para facilitar a leitura no front
+      orderBy: {
+        time: "asc",
+      },
     });
+
+    console.log(`Encontrados: ${appointments.length}`);
 
     return NextResponse.json(appointments);
   } catch (err) {
+    console.log(err);
     return NextResponse.json(
-      { error: "Usuário nao encontrado" },
-      { status: 400 }
+      { error: "Falha ao buscar agendamentos" },
+      { status: 500 } // Mudei para 500 pois é erro de servidor/query
     );
   }
 });
