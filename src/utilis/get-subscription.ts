@@ -3,7 +3,7 @@
 import prisma from "@/lib/prisma";
 
 export async function getSubscription({ userId }: { userId: string }) {
-  if (userId) {
+  if (!userId) {
     return null;
   }
 

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { GridPlans } from "./_components/grid-plans";
 import getSession from "@/lib/getSession";
 import { getSubscription } from "@/utilis/get-subscription";
+import { SubscriptionDetail } from "./_components/subscription-detail";
 
 export default async function Plans() {
   const session = await getSession();
@@ -15,7 +16,9 @@ export default async function Plans() {
     <div>
       {subscription?.status !== "active" && <GridPlans />}
 
-      {subscription?.status === "active" && <h1>vc tem uma assinatura</h1>}
+      {subscription?.status === "active" && (
+        <SubscriptionDetail subscription={subscription!} />
+      )}
     </div>
   );
 }
